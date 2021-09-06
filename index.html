@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Whatsapp API </title>
+	<!-- CSS only -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+</head>
+<body>
+	<div class="container">
+		<div id="app">
+			<h1>Whatsapp API</h1>
+			<button onclick="lainnya('081337331941','didix')" >coba </button> - 
+			<button onclick="kirimke('085704662189','oky','0000000001','asdasdas')" >coba ultah</button>
+		
+			
+			<br>
+			<form action="http://ini.gallery-kohinoor.com/eprint/ultah" method="get">
+				<input type="date" name="tgl" id="tgl">
+				<button type="submit">Print</button>
+			</form>
+			<br>
+			
+			<div class="row">
+				<div class="col-lg-12 text-center">
+					<img src="http://api.ini-web.site/assets/img/wait.gif" width="240" height="auto" alt="QR Code" id="qrcode">
+				</div>
+				<div class="col-lg-6">
+					<textarea class="form-control" id="captionnya" rows="3"></textarea>
+					<img src="" alt="">
+					<input type="file" name="" id="">
+					<div class="input-group mb-3 mt-3">
+						<input type="text" name="kodeawal" id="kodeawal" value="0000000001" class="form-control" readonly  >
+						<span class="input-group-text"> >>>> </span>
+						<input type="number" id="count-mem" value="500" class="form-control"  >
+						<button class="btn btn-outline-success" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">Kirim Whatsapp</button>
+					  </div>
+				</div>
+				<div class="col-lg-2">
+					<button id="kirim" name ="kirim" class="btn btn-primary">Kirim</button>
+				</div>
+				<div class="col-lg-4">
+					<h3>Logs:</h3>
+					<ul class="logs"></ul>
+					<button id="ini">Ucapan Ultah</button>
+				</div>
+			</div>
+			
+		</div>
+		<div class="cu"></div>
+
+	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-body">
+			<div class="text-center">
+				<h3>Yakin ingin mengirim pesan ?</h3>
+				<button type="button" class="btn btn-danger" data-bs-dismiss="modal">Eh Gak Jadi</button> <button id="kirim-ya" type="button" class="btn btn-primary">Iya Kirim</button>
+			</div>
+
+			</div>
+		</div>
+		</div>
+	</div>
+
+
+	<div class="modal fade" id="closemodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-body">
+			<div class="text-center">
+				<h3>Pesan Telah dikirim </h3>
+				<button type="button" class="btn btn-danger" data-bs-dismiss="modal">OK</button>
+			</div>
+
+			</div>
+		</div>
+		</div>
+	</div>
+	
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" crossorigin="anonymous"></script>
+	<!-- JavaScript Bundle with Popper -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+	<script>
+		
+		$("#kirim-ya").click(function(){
+			pindah();
+			$('#exampleModal').modal('hide')
+			$('#closemodal').modal('show')
+		});
+
+		function pindah(){
+			var awal = $('#kodeawal').val();
+			var jumlah = $('#count-mem').val();
+			
+			$.ajax({
+				type: "POST",
+				url: "http://192.168.1.115/gk-api/wa/wa-member-count.php",
+				dataType: "json",
+				data: {awal: awal, jumlah: jumlah},
+				success : function(mem){
+					var len = mem.length;
+					var le = len -1 ;
+					var newawal =  parseInt(mem[le].kode_customer) + 1;
+					var no ,nama,kde;
+						for (var i = 0 ;i< len; i++){
+							no = mem[i].no_telp;
+							nama = mem[i].nama_customer;
+							kde = mem[i].kode_customer;
+							lainnya(no,nama)
+							//console.log(kde+" - "+no);
+							
+						}
+					
+					//console.log(mem[len].kode_customer);
+					var s = newawal+"";
+					while (s.length < 10) s = "0" + s;
+					if(len < jumlah){
+						$('#kodeawal').val('0000000001');
+						setkode('0000000001');
+					}
+					else{
+						$('#kodeawal').val(s);
+						setkode(s);
+					}
+					
+				}
+			});
+		}
+		function setkode(aku){
+			var cap = $('#captionnya').val();
+			$.ajax({
+				type: "POST",
+				url: "http://192.168.1.115/gk-api/wa/set-kode-awal.php",
+				dataType: "json",
+				data: {awal: aku ,cap: cap },
+				success : function(mem){
+				console.log(awal)
+				}
+			});
+		}
+	</script>
+	<script>
+		$('#kirim').click(function(){
+			//alert('ini kartini')
+			$.ajax({
+                type: "POST",
+                url: "http://ini.gallery-kohinoor.com/api/member_kode?a=0000001501&b=0000002000",
+                dataType: "json",
+                success : function(data5){
+					var no,nama ;
+
+						//console.log(data);
+						var len = data5.length;
+						for (var i = 0 ;i< len; i++){
+							no = data5[i].no_telp;
+							nama = data5[i].nama_customer;
+							lainnya(no,nama)
+						}
+					
+					
+                }
+            });
+		})
+		
+
+		$('#kirimzoom').click(function(){
+			//alert('ini kartini')
+			$.ajax({
+                type: "POST",
+                url: "http://192.168.1.115/gk-api/ambil-zoom",
+                dataType: "json",
+                success : function(data5){
+					var no,nama ;
+
+						//console.log(data);
+						var len = data5.length;
+						for (var i = 0 ;i< len; i++){
+							no = data5[i].no_telp;
+							nama = data5[i].nama_customer;
+							tambah(no,nama)
+						}
+					
+					
+                }
+            });
+		})
+
+		function tambah(no,nama){
+			var tel = no ,
+			text = 'Halo kak *'+nama+'*, untuk melancarkan acara Undian Ramadan Berkah yang berhadian 1 Unit Motor Honda Revo, makadari itu kami dari Panitia penyelenggara Undian mengundang kakak2 tercinta untuk mengikuti “Zoom Live Undian” pada hari Sabtu,12 Juni 2021 Pukul 17.00-selesai. Dengan keikutsertaan kakak2 kami harap bisa ikut mensukseskan acara kami😊🙏';
+			text += '\n\n\nTopic: Undian Ramadhan Berkah Gallery Kohinoor\nTime: Jun 12, 2021 05:15 PM Singapore\nJoin Zoom Meeting\nhttps://us04web.zoom.us/j/9386790743?pwd=ZE9ldUtHbjZhc1R4RG8yRFpVRFppZz09\nMeeting ID: 938 679 0743\nPasscode: kohinoor';
+			$.ajax({
+				type: "POST",
+				url: "http://localhost:1980/send-message",
+				dataType: "json",
+				data: {number: tel, message: text},
+				success : function(data){
+				console.log(data);
+				
+				}
+			});
+		}
+
+
+		function kartini(no,text,vocer){
+			var telp = no ,
+			//text1 = text+' akan berkesempatan mendapatkan Voucher belanja dari Gallery Kohinoor. Tukarkan Kode VOUCHER : *'+vocer+'* Mulai tgl  21 april 2021 Untuk mendapatkan potongan harga senilai *Rp.100.000* berlaku untuk pembelian perhiasan ditoko kami😊.';
+			text1 = 'Halo kak ada yang spesial nih buat kamu!🥳.';
+			text1 += '\nBagi customer Gallery Kohinoor yang bernama *KARTINI*, maka berhak mendapatkan voucher belanja dari Gallery Kohinoor. Tukarkan Kode VOUCHER : *'+vocer+'* Untuk mendapatkan potongan harga senilai *Rp.100.000* berlaku untuk pembelian perhiasan ditoko kami😊.';
+			text1 += '\nBatas penukaran Voucher *21 - 30 april 2021*.'; 
+			text1 += '\nUntuk *Syarat & Ketentuan Berlaku klik link dibawah';
+			text1 += '\nhttps://www.gallery-kohinoor.com/promo-kartini';
+
+			$.ajax({
+				type: "POST",
+				url: "http://localhost:1980/send-message",
+				dataType: "json",
+				data: {number: telp, message: text1},
+				success : function(data){
+				console.log(data);
+				
+				}
+			});
+			
+			
+		}
+
+
+		function lainnya(no,nama){
+			var telp = no ,
+			text1 = $('#captionnya').val();
+			var sta = 0;
+			$.ajax({
+				type: "POST",
+				url: "http://localhost:1980/send-media",
+				dataType: "json",
+				data: {number: telp, caption: text1},
+				success : function(data){
+				if(data['status'] == true ){
+					sta = sta + 1;
+				}
+				var sak = 'status : '+data['status']+' From : '+data['response']['from']+' To : '+data['response']['to']+' sta : '+sta;
+				console.log(sak);
+
+				}
+			});
+			
+			
+		}
+	</script>
+	<script>
+		$(document).ready(function(){
+		  $("#ini").click(function(){
+			
+			$.ajax({
+                type: "POST",
+                url: "http://ini.gallery-kohinoor.com/api/data_wa",
+                dataType: "json",
+                success : function(data2){
+					var no,nama,kd,kp ;
+
+                    
+					if(data2.status != 0){
+						$("#ini").hide();
+						alert('sudah dikirim hari ini');
+					}
+					else{
+						//console.log(data);
+						var len = data2.data.length;
+						for (var i = 0 ;i< len; i++){
+							no = data2.data[i].no_telp;
+							nama = data2.data[i].nama_customer;
+							kd = data2.data[i].kode_customer;
+							kp = data2.data[i].kupon_kode;
+							//no = '081337331941';
+							kirimke(no,nama,kd,kp);
+						}
+						$("#ini").hide();
+					}
+                }
+            });
+
+
+		  });
+		});
+	</script>
+
+	<script>
+		$(document).ready(function() {
+			var socket = io();
+			$("#ini").hide();
+
+			socket.on('message', function(msg) {
+				$('.logs').prepend($('<li>').text(msg));
+			});
+
+			socket.on('qr', function(src) {
+				$('#qrcode').attr('src', src);
+				$('#qrcode').show();
+				$("#ini").hide();
+			});
+
+			socket.on('ready', function(data) {
+				$('#qrcode').hide();
+				$("#ini").show();
+
+			});
+
+			socket.on('authenticated', function(data) {
+				$('#qrcode').hide();
+				$("#ini").show();
+			});
+		});
+	</script>
+
+<script>
+	function kirimke(no,nama,kd,kp){
+		var notelp = no,
+			pesan ='SELAMAT ULANG TAHUN KAK *'+ nama +'* SEMOGA SEHAT & BAHAGIA SELALU🥳🎂. \n';
+			pesan +='Bagi customer Gallery Kohinoor yang berulang tahun, maka berhak mendapatkan voucher belanja dari Gallery Kohinoor. Tukarkan Kode VOUCHER : *'+kp+'* Untuk mendapatkan potongan harga senilai *Rp.100.000* berlaku untuk pembelian perhiasan ditoko kami😊.\n';
+			pesan += 'Batas penukaran voucher *3x24 jam*. \n Untuk *Syarat & Ketentuan Berlaku klik link dibawah 👇\n https://www.gallery-kohinoor.com/sk-voucher-birthday';
+
+
+	$.ajax({
+		type: "POST",
+		url: "http://localhost:1980/send-media-ultah",
+		dataType: "json",
+		data: {number: notelp, caption: pesan},
+		success : function(data){
+			console.log(data);
+			$.ajax({
+			type: "POST",
+			url: "http://ini.gallery-kohinoor.com/api/upwa",
+			data: {kode: kd,kupon: kp,no: no,nama: nama}
+			});
+		}
+	});
+
+	}
+
+	function kirimgambar(){
+
+	}
+
+   
+</script>
+
+<script>
+	
+</script>
+
+</body>
+</html>
